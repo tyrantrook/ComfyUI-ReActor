@@ -320,7 +320,7 @@ ReActor заменит только то лицо, которое удовлет
 
 Если модель "face_yolov8m.pt" отсутствует - скачайте [отсюда](https://huggingface.co/datasets/Gourieff/ReActor/blob/main/models/detection/bbox/face_yolov8m.pt) и положите в папку "ComfyUI\models\ultralytics\bbox"
 <br>
-Также и ["sam_vit_b_01ec64.pth"](https://huggingface.co/datasets/Gourieff/ReActor/blob/main/models/sams/sam_vit_b_01ec64.pth) или ["sam_vit_l_0b3195.pth"](https://huggingface.co/datasets/Gourieff/ReActor/blob/main/models/sams/sam_vit_l_0b3195.pth) (лучше окклузия) - скачайте (если не качали ранее) и положите в папку "ComfyUI\models\sams";
+Также и ["sam_vit_b_01ec64.pth"](https://huggingface.co/datasets/Gourieff/ReActor/blob/main/models/sams/sam_vit_b_01ec64.pth) или ["sam_vit_l_0b3195.pth"](https://huggingface.co/datasets/Gourieff/ReActor/blob/main/models/sams/sam_vit_l_0b3195.pth) (лучше окклюзия) - скачайте (если не качали ранее) и положите в папку "ComfyUI\models\sams";
 
 Используйте этот нод для улучшенного результата при замене лиц:
 
