@@ -51,6 +51,10 @@
 
 ## What's new in the latest update
 
+### 0.6.1 <sub><sup>BETA3</sup></sub>
+
+- Gender detection better logic for many faces and many indexes
+
 ### 0.6.1 <sub><sup>BETA1, BETA2</sup></sub>
 
 - MaskHelper node 2x speed up - not perfect yet but 1.5x-2x faster then before
@@ -217,32 +221,6 @@ Thanks to everyone who finds bugs, suggests new features and supports this proje
 ## Installation
 
 <details>
-	<summary>SD WebUI: <a href="https://github.com/AUTOMATIC1111/stable-diffusion-webui/">AUTOMATIC1111</a> or <a href="https://github.com/vladmandic/automatic">SD.Next</a></summary>
-
-1. Close (stop) your SD-WebUI/Comfy Server if it's running
-2. (For Windows Users):
-   - Install [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/) (Community version - you need this step to build Insightface)
-   - OR only [VS C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) and select "Desktop Development with C++" under "Workloads -> Desktop & Mobile"
-   - OR if you don't want to install VS or VS C++ BT - follow [this steps (sec. I)](#insightfacebuild)
-3. Go to the `extensions\sd-webui-comfyui\ComfyUI\custom_nodes`
-4. Open Console or Terminal and run `git clone https://github.com/Gourieff/ComfyUI-ReActor`
-5. Go to the SD WebUI root folder, open Console or Terminal and run (Windows users)`.\venv\Scripts\activate` or (Linux/MacOS)`venv/bin/activate`
-6. `python -m pip install -U pip`
-7. `cd extensions\sd-webui-comfyui\ComfyUI\custom_nodes\ComfyUI-ReActor`
-8. `python install.py`
-9.  Please, wait until the installation process will be finished
-10. (From the version 0.3.0) Download additional facerestorers models from the link below and put them into the `extensions\sd-webui-comfyui\ComfyUI\models\facerestore_models` directory:<br>
-https://huggingface.co/datasets/Gourieff/ReActor/tree/main/models/facerestore_models
-11. Run SD WebUI and check console for the message that ReActor Node is running:
-<img src="https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/uploads/console_status_running.jpg?raw=true" alt="console_status_running" width="759"/>
-
-12.  Go to the ComfyUI tab and find there ReActor Node inside the menu `ReActor` or by using a search:
-<img src="https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/uploads/webui-demo.png?raw=true" alt="webui-demo" width="100%"/>
-<img src="https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/uploads/search-demo.png?raw=true" alt="webui-demo" width="1043"/>
-
-</details>
-
-<details>
 	<summary>Standalone (Portable) <a href="https://github.com/comfyanonymous/ComfyUI">ComfyUI</a> for Windows</summary>
 
 1. Do the following:
@@ -264,11 +242,12 @@ You can find ReActor Nodes inside the menu `ReActor` or by using a search (just 
 
 List of Nodes:
 - ••• Main Nodes •••
-   - ReActorFaceSwap (Main Node)
-   - ReActorFaceSwapOpt (Main Node with the additional Options input)
-   - ReActorOptions (Options for ReActorFaceSwapOpt)
-   - ReActorFaceBoost (Face Booster Node)
-   - ReActorMaskHelper (Masking Helper)
+  - ReActorFaceSwap (Main Node)
+  - ReActorFaceSwapOpt (Main Node with the additional Options input)
+  - ReActorOptions (Options for ReActorFaceSwapOpt)
+  - ReActorFaceBoost (Face Booster Node)
+  - ReActorMaskHelper (Masking Helper)
+  - ReActorSetWeight (Set Face Swap Weight)
 - ••• Operations with Face Models •••
   - ReActorSaveFaceModel (Save Face Model)
   - ReActorLoadFaceModel (Load Face Model)
@@ -278,6 +257,7 @@ List of Nodes:
   - ReActorRestoreFace (Face Restoration)
   - ReActorImageDublicator (Dublicate one Image to Images List)
   - ImageRGBA2RGB (Convert RGBA to RGB)
+  - ReActorUnload (Unload ReActor models from VRAM)
 
 Connect all required slots and run the query.
 
@@ -289,6 +269,10 @@ Connect all required slots and run the query.
   - Supported Nodes: "Load Image" or any other nodes providing images as an output;
 - `face_model` - is the input for the "Load Face Model" Node or another ReActor node to provide a face model file (face embedding) you created earlier via the "Save Face Model" Node;
   - Supported Nodes: "Load Face Model", "Build Blended Face Model";
+- `options` - to connect ReActorOptions;
+  - Supported Nodes: "ReActorOptions";
+- `face_boost` - to connect ReActorFaceBoost;
+  - Supported Nodes: "ReActorFaceBoost";
 
 ### Main Node Outputs
 
@@ -296,6 +280,7 @@ Connect all required slots and run the query.
   - Supported Nodes: any nodes which have images as an input;
 - `FACE_MODEL` - is an output providing a source face's model being built during the swapping process;
   - Supported Nodes: "Save Face Model", "ReActor", "Make Face Model Batch";
+- `ORIGINAL_IMAGE` - `input_image` bypass;
 
 ### Face Restoration
 
@@ -323,6 +308,28 @@ Since version 0.4.0 you can save face models as "safetensors" files (stored in `
 
 To make new models appear in the list of the "Load Face Model" Node - just refresh the page of your ComfyUI web application.<br>
 (I recommend you to use ComfyUI Manager - otherwise you workflow can be lost after you refresh the page if you didn't save it before that).
+
+### Masking Helper
+
+Face Masking feature is available since version 0.5.0, just add the "ReActorMaskHelper" Node to the workflow and connect it as shown below:
+
+<img src="https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/0.5.0-whatsnew-01.jpg?raw=true" alt="0.5.0-whatsnew-01" width="100%"/>
+
+If you don't have the "face_yolov8m.pt" Ultralytics model - you can download it from the [Assets](https://huggingface.co/datasets/Gourieff/ReActor/blob/main/models/detection/bbox/face_yolov8m.pt) and put it into the "ComfyUI\models\ultralytics\bbox" directory
+<br>
+As well as ["sam_vit_b_01ec64.pth"](https://huggingface.co/datasets/Gourieff/ReActor/blob/main/models/sams/sam_vit_b_01ec64.pth) or ["sam_vit_l_0b3195.pth"](https://huggingface.co/datasets/Gourieff/ReActor/blob/main/models/sams/sam_vit_l_0b3195.pth) (better occlusion) - download (if you don't have it) and put it into the "ComfyUI\models\sams" directory;
+
+Use this Node to gain the best results of the face swapping process:
+
+<img src="https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/0.5.0-whatsnew-02.jpg?raw=true" alt="0.5.0-whatsnew-02" width="100%"/>
+
+### Face Swap Weigth
+
+You can now set the strength of face swap for `source_image` or `face_model` from 0% to 100% (in 12.5% step) with `ReActorSetWeight` node
+
+<center>
+<img src="https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/0.6.0-whatsnew-01.jpg?raw=true" alt="0.6.0-whatsnew-01" width="100%"/>
+</center>
 
 ## Troubleshooting
 

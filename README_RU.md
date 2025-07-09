@@ -51,6 +51,10 @@
 
 ## Что нового в последнем обновлении
 
+### 0.6.1 <sub><sup>BETA3</sup></sub>
+
+- Улучшенная логика работы с индексами множества лиц при определении пола
+
 ### 0.6.1 <sub><sup>BETA1, BETA2</sup></sub>
 
 - MaskHelper нод теперь почти вдвое быстрее - пока не идеально, но лучше, чем было ранее
@@ -218,32 +222,6 @@ Basic workflow [💾](https://github.com/Gourieff/Assets/blob/main/comfyui-react
 ## Установка
 
 <details>
-	<summary>SD WebUI: <a href="https://github.com/AUTOMATIC1111/stable-diffusion-webui/">AUTOMATIC1111</a> или <a href="https://github.com/vladmandic/automatic">SD.Next</a></summary>
-
-1. Закройте (остановите) SD-WebUI Сервер, если запущен
-2. (Для пользователей Windows):
-   - Установите [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/) (Например, версию Community - этот шаг нужен для правильной компиляции библиотеки Insightface)
-   - ИЛИ только [VS C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/), выберите "Desktop Development with C++" в разделе "Workloads -> Desktop & Mobile"
-   - ИЛИ если же вы не хотите устанавливать что-либо из вышеуказанного - выполните [данные шаги (раздел. I)](#insightfacebuild)
-3. Перейдите в `extensions\sd-webui-comfyui\ComfyUI\custom_nodes`
-4. Откройте Консоль или Терминал и выполните `git clone https://github.com/Gourieff/ComfyUI-ReActor`
-5. Перейдите в корневую директорию SD WebUI, откройте Консоль или Терминал и выполните (для пользователей Windows)`.\venv\Scripts\activate` или (для пользователей Linux/MacOS)`venv/bin/activate`
-6. `python -m pip install -U pip`
-7. `cd extensions\sd-webui-comfyui\ComfyUI\custom_nodes\ComfyUI-ReActor`
-8. `python install.py`
-9.  Пожалуйста, дождитесь полного завершения установки
-10. (Начиная с версии 0.3.0) Скачайте дополнительные модели восстановления лиц (по ссылке ниже) и сохраните их в папку `extensions\sd-webui-comfyui\ComfyUI\models\facerestore_models`:<br>
-https://huggingface.co/datasets/Gourieff/ReActor/tree/main/models/facerestore_models
-11. Запустите SD WebUI и проверьте консоль на сообщение, что ReActor Node работает:
-<img src="https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/uploads/console_status_running.jpg?raw=true" alt="console_status_running" width="759"/>
-
-12.   Перейдите во вкладку ComfyUI и найдите там ReActor Node внутри меню `ReActor` или через поиск:
-<img src="https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/uploads/webui-demo.png?raw=true" alt="webui-demo" width="100%"/>
-<img src="https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/uploads/search-demo.png?raw=true" alt="webui-demo" width="1043"/>
-
-</details>
-
-<details>
 	<summary>Портативная версия <a href="https://github.com/comfyanonymous/ComfyUI">ComfyUI</a> для Windows</summary>
 
 1. Сделайте следующее:
@@ -267,21 +245,23 @@ https://huggingface.co/datasets/Gourieff/ReActor/tree/main/models/facerestore_mo
 Вы можете найти ноды ReActor внутри меню `ReActor` или через поиск (достаточно ввести "ReActor" в поисковой строке)
 
 Список нодов:
-- ••• Main Nodes •••
-   - ReActorFaceSwap (Основной нод)
-   - ReActorFaceSwapOpt (Основной нод с доп. входом Options)
-   - ReActorOptions (Опции для ReActorFaceSwapOpt)
-   - ReActorFaceBoost (Нод Face Booster)
-   - ReActorMaskHelper (Masking Helper)
-- ••• Operations with Face Models •••
-  - ReActorSaveFaceModel (Save Face Model)
-  - ReActorLoadFaceModel (Load Face Model)
-  - ReActorBuildFaceModel (Build Blended Face Model)
-  - ReActorMakeFaceModelBatch (Make Face Model Batch)
-- ••• Additional Nodes •••
-  - ReActorRestoreFace (Face Restoration)
-  - ReActorImageDublicator (Dublicate one Image to Images List)
-  - ImageRGBA2RGB (Convert RGBA to RGB)
+- ••• Основные •••
+  - ReActorFaceSwap (Основной нод)
+  - ReActorFaceSwapOpt (Основной нод с доп. входом Options)
+  - ReActorOptions (Опции для ReActorFaceSwapOpt)
+  - ReActorFaceBoost (Face Booster)
+  - ReActorMaskHelper (Masking Helper)
+  - ReActorSetWeight (Задать замены лица)
+- ••• Работа с моделями лиц •••
+  - ReActorSaveFaceModel (Сохранить модель лица)
+  - ReActorLoadFaceModel (Загрузить модель лица)
+  - ReActorBuildFaceModel (Построить смешанную модель лица)
+  - ReActorMakeFaceModelBatch (Создать пачку моделей лиц)
+- ••• Дополнительные •••
+  - ReActorRestoreFace (Восстановление лиц)
+  - ReActorImageDublicator (Сделать из одного изображения несколько дубликатов)
+  - ImageRGBA2RGB (Конвертировать RGBA в RGB)
+  - ReActorUnload (Выгрузить модели РеАктора из VRAM)
 
 Соедините все необходимые слоты (slots) и запустите очередь (query).
 
@@ -293,6 +273,10 @@ https://huggingface.co/datasets/Gourieff/ReActor/tree/main/models/facerestore_mo
   - Поддерживаемые ноды: "Load Image" или любые другие ноды с выходом Image(s);
 - `face_model` - это вход для выхода с нода "Load Face Model" или другого нода ReActor для загрузки модели лица (face model или face embedding), которое вы создали ранее через нод "Save Face Model";
   - Поддерживаемые ноды: "Load Face Model", "Build Blended Face Model";
+- `options` - для соединения с ReActorOptions;
+  - Поддерживаемые ноды: "ReActorOptions";
+- `face_boost` - для соединения с ReActorFaceBoost;
+  - Поддерживаемые ноды: "ReActorFaceBoost";
 
 ### Выходы основного Нода
 
@@ -300,6 +284,7 @@ https://huggingface.co/datasets/Gourieff/ReActor/tree/main/models/facerestore_mo
   - Поддерживаемые ноды: любые ноды с изображением на входе;
 - `FACE_MODEL` - выход, предоставляющий модель лица, построенную в ходе замены;
   - Поддерживаемые ноды: "Save Face Model", "ReActor", "Make Face Model Batch";
+- `ORIGINAL_IMAGE` - `input_image` байпас;
 
 ### Восстановление лиц
 
@@ -326,6 +311,28 @@ ReActor заменит только то лицо, которое удовлет
 
 Чтобы новые модели появились в списке моделей нода "Load Face Model" - обновите страницу of с ComfyUI.<br>
 (Рекомендую использовать ComfyUI Manager - иначе ваше воркфлоу может быть потеряно после перезагрузки страницы, если вы не сохранили его).
+
+### Masking Helper
+
+Нод доступен с версии 0.5.0, просто добавьте "ReActorMaskHelper" в рабочий процесс и соедините как показано ниже:
+
+<img src="https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/0.5.0-whatsnew-01.jpg?raw=true" alt="0.5.0-whatsnew-01" width="100%"/>
+
+Если модель "face_yolov8m.pt" отсутствует - скачайте [отсюда](https://huggingface.co/datasets/Gourieff/ReActor/blob/main/models/detection/bbox/face_yolov8m.pt) и положите в папку "ComfyUI\models\ultralytics\bbox"
+<br>
+Также и ["sam_vit_b_01ec64.pth"](https://huggingface.co/datasets/Gourieff/ReActor/blob/main/models/sams/sam_vit_b_01ec64.pth) или ["sam_vit_l_0b3195.pth"](https://huggingface.co/datasets/Gourieff/ReActor/blob/main/models/sams/sam_vit_l_0b3195.pth) (лучше окклузия) - скачайте (если не качали ранее) и положите в папку "ComfyUI\models\sams";
+
+Используйте этот нод для улучшенного результата при замене лиц:
+
+<img src="https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/0.5.0-whatsnew-02.jpg?raw=true" alt="0.5.0-whatsnew-02" width="100%"/>
+
+### Сила замены лица
+
+Для входов `source_image` or `face_model` можно задать силу замены лица от 0% до 100% (с шагом 12.5%) с помощью нода `ReActorSetWeight`
+
+<center>
+<img src="https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/0.6.0-whatsnew-01.jpg?raw=true" alt="0.6.0-whatsnew-01" width="100%"/>
+</center>
 
 <a name="troubleshooting">
 
