@@ -325,7 +325,7 @@ Use this Node to gain the best results of the face swapping process:
 
 ### Face Swap Weigth
 
-You can now set the strength of face swap for `source_image` or `face_model` from 0% to 100% (in 12.5% step) with `ReActorSetWeight` node
+You can set the strength of face swap for `source_image` or `face_model` from 0% to 100% (in 12.5% step) with `ReActorSetWeight` node
 
 <center>
 <img src="https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/0.6.0-whatsnew-01.jpg?raw=true" alt="0.6.0-whatsnew-01" width="100%"/>
