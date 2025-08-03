@@ -410,7 +410,7 @@ class reactor:
                 interpolation=self.interpolation,
             )
             result = batched_pil_to_tensor(p.init_images)
-            original_image = batched_pil_to_tensor(pil_images)
+            original_image = input_image
 
             if face_model is None:
                 current_face_model = get_current_faces_model()
