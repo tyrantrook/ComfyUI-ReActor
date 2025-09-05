@@ -173,13 +173,23 @@ class reactor:
         self.boost_cf_weight = 0.5
 
     def restore_face(
-            self,
-            input_image,
-            face_restore_model,
-            face_restore_visibility,
-            codeformer_weight,
-            facedetection,
-        ):
+        self,
+        input_image,
+        face_restore_model,
+        face_restore_visibility,
+        codeformer_weight,
+        facedetection,
+        #Face-Filter mode
+        face_selection="all",
+        sort_by="area",
+        reverse_order=False,
+        min_x_position=0.0,
+        max_x_position=1.0,
+        min_y_position=0.0,
+        max_y_position=1.0,
+        take_start=0,
+        take_count=1,
+    ):
 
         result = input_image
 
@@ -257,6 +267,90 @@ class reactor:
                 self.face_helper.get_face_landmarks_5(only_center_face=False, resize=640, eye_dist_threshold=5)
                 self.face_helper.align_warp_face()
 
+                # Face-Filter Mode
+
+                # Фильтрация лиц
+                if face_selection != "all" and self.face_helper.cropped_faces:
+                    # Собираем информацию о лицах для фильтрации
+                    face_info = []
+                    img_height, img_width = cur_image_np.shape[0:2]
+                    
+                    for j, face in enumerate(self.face_helper.cropped_faces):
+                        # Используем центр лица вместо левого верхнего угла
+                        if hasattr(self.face_helper, 'det_faces') and len(self.face_helper.det_faces) > j:
+                            bbox = self.face_helper.det_faces[j]
+                            # Вычисляем центр лица для более точного позиционирования
+                            x1 = ((bbox[0] + bbox[2]) / 2) / img_width  # центр x
+                            y1 = ((bbox[1] + bbox[3]) / 2) / img_height  # центр y
+                            area = face.shape[0] * face.shape[1]
+                            confidence = bbox[4] if len(bbox) > 4 else 1.0
+                        else:
+                            # Если информация о bbox недоступна, используем приблизительные данные
+                            area = face.shape[0] * face.shape[1]
+                            x1, y1 = 0.5, 0.5  # центр изображения
+                            confidence = 1.0
+                            
+                        face_info.append({
+                            'index': j,
+                            'area': area,
+                            'x_position': x1,
+                            'y_position': y1,
+                            'detection_confidence': confidence
+                        })
+                    
+                    # Сначала сортируем все лица по выбранному критерию
+                    all_indices = list(range(len(self.face_helper.cropped_faces)))
+                    
+                    # Вывод для x_position и y_position
+                    if sort_by == "y_position":
+                        all_positions = [(idx, face_info[idx]['y_position']) for idx in all_indices]
+                    elif sort_by == "x_position":
+                        all_positions = [(idx, face_info[idx]['x_position']) for idx in all_indices]
+                    
+                    # Сортировка по выбранному критерию
+                    sorted_indices = sorted(
+                        all_indices,
+                        key=lambda idx: face_info[idx][sort_by],
+                        reverse=reverse_order
+                    )
+                    
+                    # Отладочный вывод после сортировки
+                    if sort_by == "y_position":
+                        sorted_positions = [(idx, face_info[idx]['y_position']) for idx in sorted_indices]
+                    elif sort_by == "x_position":
+                        sorted_positions = [(idx, face_info[idx]['x_position']) for idx in sorted_indices]
+                    
+                    # Применяем фильтрацию в зависимости от режима
+                    if face_selection == "filter":
+                        # Фильтрация по координатам
+                        filtered_indices = [
+                            idx for idx in sorted_indices
+                            if min_x_position <= face_info[idx]['x_position'] <= max_x_position and
+                               min_y_position <= face_info[idx]['y_position'] <= max_y_position
+                        ]
+                        
+                        # Выборка по take_start и take_count
+                        selected_indices = filtered_indices[take_start:take_start + take_count]
+                    
+                    elif face_selection == "largest":
+                        # При выборе "largest" просто берем take_count лиц с наибольшей площадью, начиная с take_start
+                        selected_indices = sorted_indices[take_start:take_start + take_count]
+                    
+                    elif face_selection == "index":
+                        # В режиме "index" просто берем лица, начиная с take_start
+                        selected_indices = sorted_indices[take_start:take_start + take_count]
+
+                    if selected_indices:
+                        self.face_helper.cropped_faces = [self.face_helper.cropped_faces[j] for j in selected_indices]
+                        if hasattr(self.face_helper, 'restored_faces'):
+                            self.face_helper.restored_faces = []
+                        if hasattr(self.face_helper, 'affine_matrices'):
+                            self.face_helper.affine_matrices = [self.face_helper.affine_matrices[j] for j in selected_indices]
+                        if hasattr(self.face_helper, 'det_faces'):
+                            self.face_helper.det_faces = [self.face_helper.det_faces[j] for j in selected_indices]
+
+                # Face-Filter Mode END
+                
                 restored_face = None
 
                 for idx, cropped_face in enumerate(self.face_helper.cropped_faces):
@@ -361,6 +455,35 @@ class reactor:
         if face_model == "none":
             face_model = None
 
+        # Face-Filter Mode
+
+        # Сохраняем параметры для последующего использования при restore
+        target_indices = []
+        if input_faces_index == "0" or input_faces_index == "":
+            target_indices = [0]
+        else:
+            try:
+                target_indices = [int(x.strip()) for x in input_faces_index.split(",") if x.strip()]
+            except:
+                target_indices = [0]
+        
+        # Определяем параметры сортировки
+        sort_by = "area"
+        reverse_order = False
+        if faces_order is not None:
+            input_order = faces_order[0]
+            if input_order in ["left-right", "right-left"]:
+                sort_by = "x_position"
+                reverse_order = (input_order == "right-left")
+            elif input_order in ["top-bottom", "bottom-top"]:
+                sort_by = "y_position"
+                reverse_order = (input_order == "bottom-top")
+            elif input_order in ["small-large", "large-small"]:
+                sort_by = "area"
+                reverse_order = (input_order == "large-small")
+        
+        # Face-Filter Mode END
+
         script = FaceSwapScript()
         pil_images = batch_tensor_to_pil(input_image)
 
@@ -388,6 +511,7 @@ class reactor:
                 source = tensor_to_pil(source_image)
             else:
                 source = None
+            
             p = StableDiffusionProcessingImg2Img(pil_images)
             script.process(
                 p=p,
@@ -418,7 +542,82 @@ class reactor:
             else:
                 face_model_to_provide = face_model
 
+            # Face-Filter Mode
+
+            # Применяем restore face к результату face swap
             if self.restore or not self.face_boost_enabled:
+                # НОВЫЙ ПОДХОД: Анализируем лица ПОСЛЕ face swap
+                target_faces_coords = []
+                try:
+                    # Преобразуем результат face swap в изображение для анализа
+                    swapped_img_tensor = result[0].cpu()
+                    swapped_img_np = (255 * swapped_img_tensor.numpy()).astype(np.uint8)
+                    swapped_img_pil = Image.fromarray(swapped_img_np)
+                    swapped_img_cv = cv2.cvtColor(np.array(swapped_img_pil), cv2.COLOR_RGB2BGR)
+                    
+                    # Определяем лица после face swap
+                    face_analyser = get_current_faces_model()
+                    detected_faces = analyze_faces(swapped_img_cv, (640, 640))
+                    
+                    if not detected_faces:
+                        # Пробуем с меньшим размером детекции
+                        detected_faces = analyze_faces(swapped_img_cv, (320, 320))
+                    
+                    if detected_faces:
+                        # Сортируем лица тем же способом, что и в face swap
+                        if sort_by == "x_position":
+                            detected_faces.sort(key=lambda x: (x.bbox[0] + x.bbox[2])/2, reverse=reverse_order)
+                        elif sort_by == "y_position":
+                            detected_faces.sort(key=lambda x: (x.bbox[1] + x.bbox[3])/2, reverse=reverse_order)
+                        elif sort_by == "area":
+                            detected_faces.sort(key=lambda x: (x.bbox[2]-x.bbox[0])*(x.bbox[3]-x.bbox[1]), reverse=reverse_order)
+                        
+                        # Выбираем лица по тем же индексам, что и для face swap
+                        for idx in target_indices:
+                            if idx < len(detected_faces):
+                                face = detected_faces[idx]
+                                # Сохраняем координаты центра лица
+                                center_x = (face.bbox[0] + face.bbox[2]) / 2 / swapped_img_cv.shape[1]  # нормализуем
+                                center_y = (face.bbox[1] + face.bbox[3]) / 2 / swapped_img_cv.shape[0]  # нормализуем
+                                target_faces_coords.append((center_x, center_y))
+                        
+                except:
+                    target_faces_coords = []
+
+                # Если определены координаты лиц, применяем restore только к ним
+                if target_faces_coords:
+                    # Используем небольшой отступ вокруг каждого лица
+                    margin = 0.15  # 15% от размера изображения
+                    
+                    for center_x, center_y in target_faces_coords:
+                        min_x = max(0.0, center_x - margin)
+                        max_x = min(1.0, center_x + margin)
+                        min_y = max(0.0, center_y - margin)
+                        max_y = min(1.0, center_y + margin)
+                        
+                        # Применяем restore_face к указанной области
+                        restored_result = reactor.restore_face(
+                            self,
+                            result,
+                            face_restore_model,
+                            face_restore_visibility,
+                            codeformer_weight,
+                            facedetection,
+                            "filter",  # Используем filter для выбора по координатам
+                            sort_by,
+                            reverse_order,
+                            min_x,
+                            max_x,
+                            min_y,
+                            max_y,
+                            0,  # take_start
+                            10  # take_count - берем больше лиц для надежности
+                        )
+                    
+                    result = restored_result
+
+            else:
+                # Если координаты не определены, восстанавливаем все лица
                 result = reactor.restore_face(self,result,face_restore_model,face_restore_visibility,codeformer_weight,facedetection)
 
         else:
@@ -809,19 +1008,28 @@ class RestoreFace:
                 "model": (get_model_names(get_restorers),),
                 "visibility": ("FLOAT", {"default": 1, "min": 0.0, "max": 1, "step": 0.05}),
                 "codeformer_weight": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1, "step": 0.05}),
+                "face_selection": (["all", "filter", "largest"],{"default": "all"}),
             },
+            "optional": {
+                "sort_by": (["area", "x_position", "y_position", "detection_confidence"],{"default": "area"}),
+                "reverse_order": ("BOOLEAN", {"default": False}),
+                "take_start": ("INT", {"default": 0, "min": 0, "max": 100, "step": 1}),
+                "take_count": ("INT", {"default": 1, "min": 1, "max": 100, "step": 1}),
+            }
         }
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "execute"
     CATEGORY = "🌌 ReActor"
 
-    # def __init__(self):
-    #     self.face_helper = None
-    #     self.face_size = 512
-
-    def execute(self, image, model, visibility, codeformer_weight, facedetection):
-        result = reactor.restore_face(self,image,model,visibility,codeformer_weight,facedetection)
+    def execute(self, image, model, visibility, codeformer_weight, facedetection, face_selection="all", 
+                sort_by="area", reverse_order=False, min_x_position=0.0, max_x_position=1.0, 
+                min_y_position=0.0, max_y_position=1.0, take_start=0, take_count=1):
+        result = reactor.restore_face(
+            self, image, model, visibility, codeformer_weight, facedetection, 
+            face_selection, sort_by, reverse_order, min_x_position, max_x_position, 
+            min_y_position, max_y_position, take_start, take_count
+        )
         return (result,)
 
 
@@ -1069,8 +1277,11 @@ class MaskHelper:
         result = image_base.detach().clone()
         face_segment = mask_image_final
         
+        pbar = progress_bar(MB)
+        
         for i in range(0, MB):
             if is_empty[i]:
+                pbar.update(1)
                 continue
             else:
                 image_index = i
@@ -1129,11 +1340,15 @@ class MaskHelper:
 
                 result = rgba2rgb_tensor(result)
 
+                pbar.update(1)
+
         try:
             torch.cuda.empty_cache()
         except:
             pass
 
+        progress_bar_reset(pbar)
+        
         return (result, combined_mask, mask_blurred, face_segment)
 
     def iterative_morphology(self, image, distance, op="dilate"):
