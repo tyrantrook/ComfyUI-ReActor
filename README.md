@@ -2,7 +2,7 @@
 
   <img src="https://github.com/Gourieff/Assets/raw/main/sd-webui-reactor/ReActor_logo_NEW_EN.png?raw=true" alt="logo" width="180px"/>
 
-  ![Version](https://img.shields.io/badge/node_version-0.6.1-brightgreen?style=for-the-badge&labelColor=darkgreen)
+  ![Version](https://img.shields.io/badge/node_version-0.6.2_alpha1-lightgreen?style=for-the-badge&labelColor=darkgreen)
 
   <!--<sup>
   <font color=brightred>
@@ -50,6 +50,14 @@
 <a name="latestupdate">
 
 ## What's new in the latest update
+
+### 0.6.2 <sub><sup>ALPHA1</sup></sub>
+
+- [Experimental] Face Restore Filter! Now face restoration process affects only swapped faces
+
+<center>
+<img src="https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/0.6.2-whatsnew-01.jpg?raw=true" alt="0.6.2-whatsnew-01" width="100%"/>
+</center>
 
 ### 0.6.1
 
