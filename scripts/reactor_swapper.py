@@ -223,10 +223,10 @@ def get_face_single(img_data: np.ndarray, face, face_index=0, det_size=(640, 640
 
     try:
         faces_sorted = sort_by_order(face, order)
-        return faces_sorted[face_index], 0
+        return faces_sorted[face_index], 0, face_index
         # return sorted(face, key=lambda x: x.bbox[0])[face_index], 0
     except IndexError:
-        return None, 0
+        return None, 0, None
 
 
 def swap_face(
@@ -247,6 +247,8 @@ def swap_face(
 ):
     global SOURCE_FACES, SOURCE_IMAGE_HASH, TARGET_FACES, TARGET_IMAGE_HASH
     result_image = target_img
+    bbox = []
+    swapped_indexes = []
 
     if model is not None:
 
@@ -326,11 +328,11 @@ def swap_face(
             # No use in trying to swap faces if no faces are found, enhancement
             if len(target_faces) == 0:
                 logger.status("Cannot detect any Target, skipping swapping...")
-                return result_image
+                return result_image, bbox, swapped_indexes
 
             if source_img is not None:
                 # separated management of wrong_gender between source and target, enhancement
-                source_face, src_wrong_gender = get_face_single(source_img, source_faces, face_index=source_faces_index[0], gender_source=gender_source, order=faces_order[1])
+                source_face, src_wrong_gender, source_face_index = get_face_single(source_img, source_faces, face_index=source_faces_index[0], gender_source=gender_source, order=faces_order[1])
             else:
                 # source_face = sorted(source_faces, key=lambda x: x.bbox[0])[source_faces_index[0]]
                 source_face = sorted(source_faces, key=lambda x: (x.bbox[2] - x.bbox[0]) * (x.bbox[3] - x.bbox[1]), reverse = True)[source_faces_index[0]]
@@ -355,11 +357,11 @@ def swap_face(
                         break
 
                     if len(source_faces_index) > 1 and source_face_idx > 0:
-                        source_face, src_wrong_gender = get_face_single(source_img, source_faces, face_index=source_faces_index[source_face_idx], gender_source=gender_source, order=faces_order[1])
+                        source_face, src_wrong_gender, source_face_index = get_face_single(source_img, source_faces, face_index=source_faces_index[source_face_idx], gender_source=gender_source, order=faces_order[1])
                     source_face_idx += 1
 
                     if source_face is not None and src_wrong_gender == 0:
-                        target_face, wrong_gender = get_face_single(target_img, target_faces, face_index=face_num, gender_target=gender_target, order=faces_order[0])
+                        target_face, wrong_gender, target_face_index = get_face_single(target_img, target_faces, face_index=face_num, gender_target=gender_target, order=faces_order[0])
                         if target_face is not None and wrong_gender == 0:
                             logger.status(f"Swapping...")
                             if face_boost_enabled:
@@ -369,24 +371,17 @@ def swap_face(
                                 M *= scale
                                 result = swapper.in_swap(target_img, bgr_fake, M)
                             else:
-                                # logger.status(f"Swapping as-is")
                                 result = face_swapper.get(result, target_face, source_face)
+                            bbox = [tuple(map(float, target_face.bbox))]
+                            swapped_indexes = [target_face_index]
                         elif wrong_gender == 1:
                             wrong_gender = 0
-                            # Keep searching for other faces if wrong gender is detected, enhancement
-                            #if source_face_idx == len(source_faces_index):
-                            #    result_image = Image.fromarray(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
-                            #    return result_image
                             logger.status("Wrong target gender detected")
                             continue
                         else:
                             logger.info(f"No target face found for {face_num}")
                     elif src_wrong_gender == 1:
                         src_wrong_gender = 0
-                        # Keep searching for other faces if wrong gender is detected, enhancement
-                        #if source_face_idx == len(source_faces_index):
-                        #    result_image = Image.fromarray(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
-                        #    return result_image
                         logger.status("Wrong source gender detected")
                         continue
                     else:
@@ -398,7 +393,7 @@ def swap_face(
                 logger.status("No source face(s) in the provided Index")
         else:
             logger.status("No source face(s) found")
-    return result_image
+    return result_image, bbox, swapped_indexes
 
 def swap_face_many(
     source_img: Union[Image.Image, None],
@@ -418,6 +413,8 @@ def swap_face_many(
 ):
     global SOURCE_FACES, SOURCE_IMAGE_HASH, TARGET_FACES, TARGET_IMAGE_HASH, TARGET_FACES_LIST, TARGET_IMAGE_LIST_HASH
     result_images = target_imgs
+    bbox = []
+    swapped_indexes = []
 
     if model is not None:
 
@@ -530,11 +527,11 @@ def swap_face_many(
             # No use in trying to swap faces if no faces are found, enhancement
             if len(target_faces) == 0:
                 logger.status("Cannot detect any Target, skipping swapping...")
-                return result_images
+                return result_images, bbox, swapped_indexes
 
             if source_img is not None:
                 # separated management of wrong_gender between source and target, enhancement
-                source_face, src_wrong_gender = get_face_single(source_img, source_faces, face_index=source_faces_index[0], gender_source=gender_source, order=faces_order[1])
+                source_face, src_wrong_gender, source_face_index = get_face_single(source_img, source_faces, face_index=source_faces_index[0], gender_source=gender_source, order=faces_order[1])
             else:
                 # source_face = sorted(source_faces, key=lambda x: x.bbox[0])[source_faces_index[0]]
                 source_face = sorted(source_faces, key=lambda x: (x.bbox[2] - x.bbox[0]) * (x.bbox[3] - x.bbox[1]), reverse = True)[source_faces_index[0]]
@@ -559,14 +556,14 @@ def swap_face_many(
                         break
 
                     if len(source_faces_index) > 1 and source_face_idx > 0:
-                        source_face, src_wrong_gender = get_face_single(source_img, source_faces, face_index=source_faces_index[source_face_idx], gender_source=gender_source, order=faces_order[1])
+                        source_face, src_wrong_gender, source_face_index = get_face_single(source_img, source_faces, face_index=source_faces_index[source_face_idx], gender_source=gender_source, order=faces_order[1])
                     source_face_idx += 1
 
                     if source_face is not None and src_wrong_gender == 0:
                         # Reading results to make current face swap on a previous face result
                         # logger.status(f"Swapping...")
                         for i, (target_img, target_face) in enumerate(zip(results, target_faces)):
-                            target_face_single, wrong_gender = get_face_single(target_img, target_face, face_index=face_num, gender_target=gender_target, order=faces_order[0])
+                            target_face_single, wrong_gender, target_face_index = get_face_single(target_img, target_face, face_index=face_num, gender_target=gender_target, order=faces_order[0])
                             if target_face_single is not None and wrong_gender == 0:
                                 result = target_img
                                 if face_boost_enabled:
@@ -579,6 +576,8 @@ def swap_face_many(
                                     # logger.status(f"Swapping as-is")
                                     result = face_swapper.get(target_img, target_face_single, source_face)
                                 results[i] = result
+                                bbox.append(tuple(map(float, target_face_single.bbox)))
+                                swapped_indexes.append(target_face_index)
                                 pbar.update(1)
                             elif wrong_gender == 1:
                                 wrong_gender = 0
@@ -603,4 +602,4 @@ def swap_face_many(
                 logger.status("No source face(s) in the provided Index")
         else:
             logger.status("No source face(s) found")
-    return result_images
+    return result_images, bbox, swapped_indexes
