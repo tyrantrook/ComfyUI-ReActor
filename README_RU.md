@@ -53,10 +53,16 @@
 
 ### 0.6.2 <sub><sup>ALPHA1</sup></sub>
 
-- [Экспериментально] Добавлен фильтр восстановления лиц! Теперь восстановление лиц затрагивает только заменённые лица
+- [Экспериментально] Наконец-то! Теперь восстановление лиц затрагивает только заменённые лица
 
 <center>
 <img src="https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/0.6.2-whatsnew-01-ru.jpg?raw=true" alt="0.6.2-whatsnew-01" width="100%"/>
+</center>
+
+- [Экспериментально] Новый узел "Restore Face Advanced" с фильтром по лицам, спасибо https://github.com/Buumcode за реализацию "Фильтра восстановления лиц"<br>Этот узел помогает применить восстановление именно к нужному лицу или лицам
+
+<center>
+<img src="https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/0.6.2-whatsnew-02.jpg?raw=true" alt="0.6.2-whatsnew-02" width="100%"/>
 </center>
 
 ### 0.6.1

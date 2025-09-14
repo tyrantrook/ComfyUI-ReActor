@@ -285,10 +285,9 @@ class reactor:
                 
                 # берем сохранённые bbox из swap (или None)
                 swapped_bboxes = getattr(self, "last_swapped_bboxes", None)
-                # флаги, чтобы одно сохранённое bbox не совпал с несколькими лицами
+                # флаги, чтобы одно сохранённое bbox не совпало с несколькими лицами
                 used_swapped = [False] * len(swapped_bboxes) if swapped_bboxes else None
 
-                # Порог IoU — можно подогнать (0.3..0.5). По опыту 0.35–0.45 — хорошая зона.
                 IOU_THRESHOLD = 0.5
 
                 for idx, cropped_face in enumerate(self.face_helper.cropped_faces):
@@ -322,13 +321,8 @@ class reactor:
                                     if used_swapped is not None:
                                         used_swapped[s_idx] = True
                                     break
-                        else:
-                            # нет текущего bbox — по безопасности не ресторим
-                            do_restore = False
                     
                     if do_restore:
-
-                        # print(f"Start 2 {_current_time()}")
                     
                         # if ".pth" in face_restore_model:
                         cropped_face_t = img2tensor(cropped_face / 255., bgr2rgb=True, float32=True)
@@ -365,8 +359,6 @@ class reactor:
                             print(f"\tFailed inference: {error}", file=sys.stderr)
                             # restored_face = tensor2img(cropped_face_t, rgb2bgr=True, min_max=(-1, 1))
                             restored_face = cropped_face.copy()
-
-                        # print(f"End 2 {_current_time()}")
                         
                     else:
                         restored_face = cropped_face.copy()
@@ -910,6 +902,269 @@ class RestoreFace:
         return (result,)
 
 
+class RestoreFaceAdvanced:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "image": ("IMAGE",),
+                "facedetection": (["retinaface_resnet50", "retinaface_mobile0.25", "YOLOv5l", "YOLOv5n"],),
+                "model": (get_model_names(get_restorers),),
+                "visibility": ("FLOAT", {"default": 1, "min": 0.0, "max": 1, "step": 0.05}),
+                "codeformer_weight": ("FLOAT", {"default": 0.5, "min": 0.0, "max": 1, "step": 0.05}),
+                "face_selection": (["all", "filter", "largest"],{"default": "all"}),
+            },
+            "optional": {
+                "sort_by": (["area", "x_position", "y_position", "detection_confidence"],{"default": "area"}),
+                "reverse_order": ("BOOLEAN", {"default": False}),
+                "take_start": ("INT", {"default": 0, "min": 0, "max": 100, "step": 1}),
+                "take_count": ("INT", {"default": 1, "min": 1, "max": 100, "step": 1}),
+            }
+        }
+
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "execute"
+    CATEGORY = "🌌 ReActor"
+
+    def execute(
+            self, image, model, visibility, codeformer_weight, facedetection, face_selection, sort_by="area", reverse_order=False, take_start=0, take_count=1
+        ):
+
+        min_x_position=0.0
+        max_x_position=1.0
+        min_y_position=0.0
+        max_y_position=1.0
+
+        result = image
+
+        face_restore_model = model
+
+        if face_restore_model != "none" and not model_management.processing_interrupted():
+
+            global FACE_SIZE, FACE_HELPER
+
+            self.face_helper = FACE_HELPER
+
+            faceSize = 512
+            if "1024" in face_restore_model.lower():
+                faceSize = 1024
+            elif "2048" in face_restore_model.lower():
+                faceSize = 2048
+
+            logger.status(f"Restoring with {face_restore_model} | Face Size is set to {faceSize}")
+
+            model_path = folder_paths.get_full_path("facerestore_models", face_restore_model)
+
+            device = model_management.get_torch_device()
+
+            if "codeformer" in face_restore_model.lower():
+
+                codeformer_net = ARCH_REGISTRY.get("CodeFormer")(
+                    dim_embd=512,
+                    codebook_size=1024,
+                    n_head=8,
+                    n_layers=9,
+                    connect_list=["32", "64", "128", "256"],
+                ).to(device)
+                checkpoint = torch.load(model_path)["params_ema"]
+                codeformer_net.load_state_dict(checkpoint)
+                facerestore_model = codeformer_net.eval()
+
+            elif ".onnx" in face_restore_model:
+
+                ort_session = set_ort_session(model_path, providers=providers)
+                ort_session_inputs = {}
+                facerestore_model = ort_session
+
+            else:
+
+                sd = comfy.utils.load_torch_file(model_path, safe_load=True)
+                facerestore_model = model_loading.load_state_dict(sd).eval()
+                facerestore_model.to(device)
+
+            if faceSize != FACE_SIZE or self.face_helper is None:
+                self.face_helper = FaceRestoreHelper(1, face_size=faceSize, crop_ratio=(1, 1), det_model=facedetection, save_ext='png', use_parse=True, device=device)
+                FACE_SIZE = faceSize
+                FACE_HELPER = self.face_helper
+
+            image_np = 255. * result.cpu().numpy()
+
+            total_images = image_np.shape[0]
+
+            out_images = []
+            
+            pbar = progress_bar(total_images)
+
+            for i in range(total_images):
+
+                cur_image_np = image_np[i,:, :, ::-1]
+
+                original_resolution = cur_image_np.shape[0:2]
+
+                if facerestore_model is None or self.face_helper is None:
+                    return result
+
+                self.face_helper.clean_all()
+                self.face_helper.read_image(cur_image_np)
+                self.face_helper.get_face_landmarks_5(only_center_face=False, resize=640, eye_dist_threshold=5)
+                self.face_helper.align_warp_face()
+
+                # Face-Filter Mode
+
+                # Фильтрация лиц
+                if face_selection != "all" and self.face_helper.cropped_faces:
+                    # Собираем информацию о лицах для фильтрации
+                    face_info = []
+                    img_height, img_width = cur_image_np.shape[0:2]
+                    
+                    for j, face in enumerate(self.face_helper.cropped_faces):
+                        # Используем центр лица вместо левого верхнего угла
+                        if hasattr(self.face_helper, 'det_faces') and len(self.face_helper.det_faces) > j:
+                            bbox = self.face_helper.det_faces[j]
+                            # Вычисляем центр лица для более точного позиционирования
+                            x1 = ((bbox[0] + bbox[2]) / 2) / img_width  # центр x
+                            y1 = ((bbox[1] + bbox[3]) / 2) / img_height  # центр y
+                            area = face.shape[0] * face.shape[1]
+                            confidence = bbox[4] if len(bbox) > 4 else 1.0
+                        else:
+                            # Если информация о bbox недоступна, используем приблизительные данные
+                            area = face.shape[0] * face.shape[1]
+                            x1, y1 = 0.5, 0.5  # центр изображения
+                            confidence = 1.0
+                            
+                        face_info.append({
+                            'index': j,
+                            'area': area,
+                            'x_position': x1,
+                            'y_position': y1,
+                            'detection_confidence': confidence
+                        })
+                    
+                    # Сначала сортируем все лица по выбранному критерию
+                    all_indices = list(range(len(self.face_helper.cropped_faces)))
+                    
+                    # Вывод для x_position и y_position
+                    if sort_by == "y_position":
+                        all_positions = [(idx, face_info[idx]['y_position']) for idx in all_indices]
+                    elif sort_by == "x_position":
+                        all_positions = [(idx, face_info[idx]['x_position']) for idx in all_indices]
+                    
+                    # Сортировка по выбранному критерию
+                    sorted_indices = sorted(
+                        all_indices,
+                        key=lambda idx: face_info[idx][sort_by],
+                        reverse=reverse_order
+                    )
+                    
+                    # Отладочный вывод после сортировки
+                    if sort_by == "y_position":
+                        sorted_positions = [(idx, face_info[idx]['y_position']) for idx in sorted_indices]
+                    elif sort_by == "x_position":
+                        sorted_positions = [(idx, face_info[idx]['x_position']) for idx in sorted_indices]
+                    
+                    # Применяем фильтрацию в зависимости от режима
+                    if face_selection == "filter":
+                        # Фильтрация по координатам
+                        filtered_indices = [
+                            idx for idx in sorted_indices
+                            if min_x_position <= face_info[idx]['x_position'] <= max_x_position and
+                               min_y_position <= face_info[idx]['y_position'] <= max_y_position
+                        ]
+                        
+                        # Выборка по take_start и take_count
+                        selected_indices = filtered_indices[take_start:take_start + take_count]
+                    
+                    elif face_selection == "largest":
+                        # При выборе "largest" просто берем take_count лиц с наибольшей площадью, начиная с take_start
+                        selected_indices = sorted_indices[take_start:take_start + take_count]
+                    
+                    elif face_selection == "index":
+                        # В режиме "index" просто берем лица, начиная с take_start
+                        selected_indices = sorted_indices[take_start:take_start + take_count]
+
+                    if selected_indices:
+                        self.face_helper.cropped_faces = [self.face_helper.cropped_faces[j] for j in selected_indices]
+                        if hasattr(self.face_helper, 'restored_faces'):
+                            self.face_helper.restored_faces = []
+                        if hasattr(self.face_helper, 'affine_matrices'):
+                            self.face_helper.affine_matrices = [self.face_helper.affine_matrices[j] for j in selected_indices]
+                        if hasattr(self.face_helper, 'det_faces'):
+                            self.face_helper.det_faces = [self.face_helper.det_faces[j] for j in selected_indices]
+
+                # Face-Filter Mode END
+                
+                restored_face = None
+
+                for idx, cropped_face in enumerate(self.face_helper.cropped_faces):
+
+                    cropped_face_t = img2tensor(cropped_face / 255., bgr2rgb=True, float32=True)
+                    normalize(cropped_face_t, (0.5, 0.5, 0.5), (0.5, 0.5, 0.5), inplace=True)
+                    cropped_face_t = cropped_face_t.unsqueeze(0).to(device)
+
+                    try:
+
+                        with torch.no_grad():
+
+                            if ".onnx" in face_restore_model: # ONNX models
+
+                                for ort_session_input in ort_session.get_inputs():
+                                    if ort_session_input.name == "input":
+                                        cropped_face_prep = prepare_cropped_face(cropped_face)
+                                        ort_session_inputs[ort_session_input.name] = cropped_face_prep
+                                    if ort_session_input.name == "weight":
+                                        weight = np.array([ 1 ], dtype = np.double)
+                                        ort_session_inputs[ort_session_input.name] = weight
+
+                                output = ort_session.run(None, ort_session_inputs)[0][0]
+                                restored_face = normalize_cropped_face(output)
+
+                            else: # PTH models
+
+                                output = facerestore_model(cropped_face_t, w=codeformer_weight)[0] if "codeformer" in face_restore_model.lower() else facerestore_model(cropped_face_t)[0]
+                                restored_face = tensor2img(output, rgb2bgr=True, min_max=(-1, 1))
+
+                        del output
+                        torch.cuda.empty_cache()
+
+                    except Exception as error:
+
+                        print(f"\tFailed inference: {error}", file=sys.stderr)
+                        restored_face = cropped_face.copy()
+
+                    if visibility < 1:
+                        restored_face = cropped_face * (1 - visibility) + restored_face * visibility
+
+                    restored_face = restored_face.astype("uint8")
+                    self.face_helper.add_restored_face(restored_face)
+
+                self.face_helper.get_inverse_affine(None)
+
+                restored_img = self.face_helper.paste_faces_to_input_image()
+                restored_img = restored_img[:, :, ::-1]
+
+                if original_resolution != restored_img.shape[0:2]:
+                    restored_img = cv2.resize(restored_img, (0, 0), fx=original_resolution[1]/restored_img.shape[1], fy=original_resolution[0]/restored_img.shape[0], interpolation=cv2.INTER_AREA)
+
+                self.face_helper.clean_all()
+
+                out_images.append(restored_img)
+
+                if state.interrupted or model_management.processing_interrupted():
+                    logger.status("Interrupted by User")
+                    return image
+                
+                pbar.update(1)
+
+            restored_img_np = np.array(out_images).astype(np.float32) / 255.0
+            restored_img_tensor = torch.from_numpy(restored_img_np)
+
+            result = restored_img_tensor
+
+            progress_bar_reset(pbar)
+
+        return (result,)
+
+
 class MaskHelper:
     def __init__(self):
         self.labels = "all"
@@ -1414,6 +1669,7 @@ NODE_CLASS_MAPPINGS = {
     "ReActorMakeFaceModelBatch": MakeFaceModelBatch,
     # --- Additional Nodes ---
     "ReActorRestoreFace": RestoreFace,
+    "ReActorRestoreFaceAdvanced": RestoreFaceAdvanced,
     "ReActorImageDublicator": ImageDublicator,
     "ImageRGBA2RGB": ImageRGBA2RGB,
     "ReActorUnload": ReActorUnload,
@@ -1434,6 +1690,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "ReActorMakeFaceModelBatch": "Make Face Model Batch 🌌 ReActor",
     # --- Additional Nodes ---
     "ReActorRestoreFace": "Restore Face 🌌 ReActor",
+    "ReActorRestoreFaceAdvanced": "Restore Face Advanced 🌌 ReActor",
     "ReActorImageDublicator": "Image Dublicator (List) 🌌 ReActor",
     "ImageRGBA2RGB": "Convert RGBA to RGB 🌌 ReActor",
     "ReActorUnload": "Unload ReActor Models 🌌 ReActor",

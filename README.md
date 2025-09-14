@@ -53,10 +53,16 @@
 
 ### 0.6.2 <sub><sup>ALPHA1</sup></sub>
 
-- [Experimental] Face Restore Filter! Now face restoration process affects only swapped faces
+- [Experimental] At last! Face restoration process affects only swapped faces
 
 <center>
 <img src="https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/0.6.2-whatsnew-01.jpg?raw=true" alt="0.6.2-whatsnew-01" width="100%"/>
+</center>
+
+- [Experimental] New Node "Restore Face Advanced" with Face Restore Filter, thanks https://github.com/Buumcode for implementation of "Restore Face Filter"<br>This node helps you apply the restoration process to the face(s) you need
+
+<center>
+<img src="https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/0.6.2-whatsnew-02.jpg?raw=true" alt="0.6.2-whatsnew-02" width="100%"/>
 </center>
 
 ### 0.6.1
