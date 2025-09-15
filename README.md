@@ -34,7 +34,7 @@
 
 </div>
 
-### The Fast and Simple Face Swap Extension Nodes for ComfyUI, based on [blocked ReActor](https://github.com/Gourieff/comfyui-reactor-node) - now it has a nudity detector to avoid using this software with 18+ content
+### The Fast and Simple Face Swap Extension Nodes for ComfyUI, based on [blocked ReActor](https://web.archive.org/web/20241230084620/https://github.com/Gourieff/comfyui-reactor-node) - now it has a nudity detector to avoid using this software with 18+ content
 
 > By using this Node you accept and assume [responsibility](#disclaimer)
 
@@ -126,7 +126,7 @@ Just put them into the "models/reswapper" directory.
 - Sorting facemodels alphabetically
 - A lot of fixes and improvements
 
-### [0.5.0 <sub><sup>BETA4</sup></sub>](https://github.com/Gourieff/comfyui-reactor-node/releases/tag/v0.5.0)
+### [0.5.0 <sub><sup>BETA4</sup></sub>](https://web.archive.org/web/20241127121952/https://github.com/Gourieff/comfyui-reactor-node/releases/tag/v0.5.0)
 
 - Spandrel lib support for GFPGAN
 
@@ -174,7 +174,7 @@ Use this Node to gain the best results of the face swapping process:
 
 - Little speed boost when analyzing target images (unfortunately it is still quite slow in compare to swapping and restoring...)
 
-### [0.4.2](https://github.com/Gourieff/comfyui-reactor-node/releases/tag/v0.4.2)
+### [0.4.2](https://web.archive.org/web/20241127034727/https://github.com/Gourieff/comfyui-reactor-node/releases/tag/v0.4.2)
 
 - GPEN-BFR-512 and RestoreFormer_Plus_Plus face restoration models support
 
@@ -197,12 +197,12 @@ Result example (the new face was created from 4 faces of different actresses):
 
 Basic workflow [💾](https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/workflows/ReActor--Build-Blended-Face-Model--v1.json)
 
-### [0.4.1](https://github.com/Gourieff/comfyui-reactor-node/releases/tag/v0.4.1)
+### [0.4.1](https://web.archive.org/web/20241127044707/https://github.com/Gourieff/comfyui-reactor-node/releases/tag/v0.4.1)
 
 - CUDA 12 Support - don't forget to run (Windows) `install.bat` or (Linux/MacOS) `install.py` for ComfyUI's Python enclosure or try to install ORT-GPU for CU12 manually (https://onnxruntime.ai/docs/install/#install-onnx-runtime-gpu-cuda-12x)
-- Issue https://github.com/Gourieff/comfyui-reactor-node/issues/173 fix
+- Issue [comfyui-reactor-node/issues/173](https://web.archive.org/web/20240919043728/https://github.com/Gourieff/comfyui-reactor-node/issues/173) fix
 
-- Separate Node for the Face Restoration postprocessing (FR https://github.com/Gourieff/comfyui-reactor-node/issues/191), can be found inside ReActor's menu (RestoreFace Node)
+- Separate Node for the Face Restoration postprocessing (FR [comfyui-reactor-node/issues/191](https://web.archive.org/web/20241127040848/https://github.com/Gourieff/comfyui-reactor-node/issues/191)), can be found inside ReActor's menu (RestoreFace Node)
 - (Windows) Installation can be done for Python from the System's PATH
 - Different fixes and improvements
 
@@ -210,7 +210,7 @@ Basic workflow [💾](https://github.com/Gourieff/Assets/blob/main/comfyui-react
 
 <img src="https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/0.4.1-whatsnew-01.jpg?raw=true" alt="0.4.1-whatsnew-01" width="100%"/>
 
-### [0.4.0](https://github.com/Gourieff/comfyui-reactor-node/releases/tag/v0.4.0)
+### [0.4.0](https://web.archive.org/web/20241119155323/https://github.com/Gourieff/comfyui-reactor-node/releases/tag/v0.4.0)
 
 - Input "input_image" goes first now, it gives a correct bypass and also it is right to have the main input first;
 - You can now save face models as "safetensors" files (`ComfyUI\models\reactor\faces`) and load them into ReActor implementing different scenarios and keeping super lightweight face models of the faces you use:

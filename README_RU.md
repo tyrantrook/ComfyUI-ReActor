@@ -34,7 +34,7 @@
 
 </div>
 
-### Ноды (nodes) для быстрой и простой замены лиц на любых изображениях для работы с ComfyUI, основан на [ранее заблокированном РеАкторе](https://github.com/Gourieff/comfyui-reactor-node) - теперь имеется встроенный NSFW-детектор, исключающий замену лиц на изображениях с контентом 18+
+### Ноды (nodes) для быстрой и простой замены лиц на любых изображениях для работы с ComfyUI, основан на [ранее заблокированном РеАкторе](https://web.archive.org/web/20241126185020/https://github.com/Gourieff/comfyui-reactor-node/blob/main/README_RU.md) - теперь имеется встроенный NSFW-детектор, исключающий замену лиц на изображениях с контентом 18+
 
 > Используя данное ПО, вы понимаете и принимаете [ответственность](#disclaimer)
 
@@ -125,7 +125,7 @@ https://huggingface.co/datasets/Gourieff/ReActor/tree/main/models
 - Сортировка моделей лиц по алфавиту
 - Множество исправлений и улучшений
 
-### [0.5.0 <sub><sup>BETA4</sup></sub>](https://github.com/Gourieff/comfyui-reactor-node/releases/tag/v0.5.0)
+### [0.5.0 <sub><sup>BETA4</sup></sub>](https://web.archive.org/web/20241127121952/https://github.com/Gourieff/comfyui-reactor-node/releases/tag/v0.5.0)
 
 - Поддержка библиотеки Spandrel при работе с GFPGAN
 
@@ -173,7 +173,7 @@ Basic workflow [💾](https://github.com/Gourieff/Assets/blob/main/comfyui-react
 
 - Небольшое улучшение скорости анализа целевых изображений (input)
 
-### [0.4.2](https://github.com/Gourieff/comfyui-reactor-node/releases/tag/v0.4.2)
+### [0.4.2](https://web.archive.org/web/20241127034727/https://github.com/Gourieff/comfyui-reactor-node/releases/tag/v0.4.2)
 
 - Добавлена поддержка GPEN-BFR-512 и RestoreFormer_Plus_Plus моделей восстановления лиц
 
@@ -196,12 +196,12 @@ Basic workflow [💾](https://github.com/Gourieff/Assets/blob/main/comfyui-react
 
 Базовый воркфлоу [💾](https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/workflows/ReActor--Build-Blended-Face-Model--v1.json)
 
-### [0.4.1](https://github.com/Gourieff/comfyui-reactor-node/releases/tag/v0.4.1)
+### [0.4.1](https://web.archive.org/web/20241127044707/https://github.com/Gourieff/comfyui-reactor-node/releases/tag/v0.4.1)
 
 - Поддержка CUDA 12 - не забудьте запустить (Windows) `install.bat` или (Linux/MacOS) `install.py` для используемого Python окружения или попробуйте установить ORT-GPU для CU12 вручную (https://onnxruntime.ai/docs/install/#install-onnx-runtime-gpu-cuda-12x)
-- Исправление Issue https://github.com/Gourieff/comfyui-reactor-node/issues/173
+- Исправление Issue [comfyui-reactor-node/issues/173](https://web.archive.org/web/20240919043728/https://github.com/Gourieff/comfyui-reactor-node/issues/173)
 
-- Отдельный Нод для восстаноления лиц (FR https://github.com/Gourieff/comfyui-reactor-node/issues/191), располагается внутри меню ReActor (нод RestoreFace)
+- Отдельный Нод для восстаноления лиц (FR [comfyui-reactor-node/issues/191](https://web.archive.org/web/20241127040848/https://github.com/Gourieff/comfyui-reactor-node/issues/191)), располагается внутри меню ReActor (нод RestoreFace)
 - (Windows) Установка зависимостей теперь может быть выполнена в Python из PATH ОС
 - Разные исправления и улучшения
 
@@ -209,7 +209,7 @@ Basic workflow [💾](https://github.com/Gourieff/Assets/blob/main/comfyui-react
 
 <img src="https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/0.4.1-whatsnew-01.jpg?raw=true" alt="0.4.1-whatsnew-01" width="100%"/>
 
-### [0.4.0](https://github.com/Gourieff/comfyui-reactor-node/releases/tag/v0.4.0)
+### [0.4.0](https://web.archive.org/web/20241119155323/https://github.com/Gourieff/comfyui-reactor-node/releases/tag/v0.4.0)
 
 - Вход "input_image" теперь идёт первым, это даёт возможность корректного байпаса, а также это правильно с точки зрения расположения входов (главный вход - первый);
 - Теперь можно сохранять модели лиц в качестве файлов "safetensors" (`ComfyUI\models\reactor\faces`) и загружать их в ReActor, реализуя разные сценарии использования, а также  храня супер легкие модели лиц, которые вы чаще всего используете:
