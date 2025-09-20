@@ -358,17 +358,15 @@ You can set the strength of face swap for `source_image` or `face_model` from 0%
 ### **I. (For Windows users) If you still cannot build Insightface for some reasons or just don't want to install Visual Studio or VS C++ Build Tools - do the following:**
 
 1. (ComfyUI Portable) From the root folder check the version of Python:<br>run CMD and type `python_embeded\python.exe -V`
-2. Download prebuilt Insightface package [for Python 3.10](https://github.com/Gourieff/Assets/raw/main/Insightface/insightface-0.7.3-cp310-cp310-win_amd64.whl) or [for Python 3.11](https://github.com/Gourieff/Assets/raw/main/Insightface/insightface-0.7.3-cp311-cp311-win_amd64.whl) (if in the previous step you see 3.11) or [for Python 3.12](https://github.com/Gourieff/Assets/raw/main/Insightface/insightface-0.7.3-cp312-cp312-win_amd64.whl) (if in the previous step you see 3.12) and put into the stable-diffusion-webui (A1111 or SD.Next) root folder (where you have "webui-user.bat" file) or into ComfyUI root folder if you use ComfyUI Portable
-3. From the root folder run:
-   - (SD WebUI) CMD and `.\venv\Scripts\activate`
-   - (ComfyUI Portable) run CMD
-4. Then update your PIP:
-   - (SD WebUI) `python -m pip install -U pip`
-   - (ComfyUI Portable) `python_embeded\python.exe -m pip install -U pip`
-5. Then install Insightface:
-   - (SD WebUI) `pip install insightface-0.7.3-cp310-cp310-win_amd64.whl` (for 3.10) or `pip install insightface-0.7.3-cp311-cp311-win_amd64.whl` (for 3.11) or `pip install insightface-0.7.3-cp312-cp312-win_amd64.whl` (for 3.12)
-   - (ComfyUI Portable) `python_embeded\python.exe -m pip install insightface-0.7.3-cp310-cp310-win_amd64.whl` (for 3.10) or `python_embeded\python.exe -m pip install insightface-0.7.3-cp311-cp311-win_amd64.whl` (for 3.11) or `python_embeded\python.exe -m pip install insightface-0.7.3-cp312-cp312-win_amd64.whl` (for 3.12)
-6. Enjoy!
+2. Download prebuilt Insightface package according to Python's version you see in the previous step: [for Python 3.10](https://github.com/Gourieff/Assets/raw/main/Insightface/insightface-0.7.3-cp310-cp310-win_amd64.whl), [for Python 3.11](https://github.com/Gourieff/Assets/raw/main/Insightface/insightface-0.7.3-cp311-cp311-win_amd64.whl), [for Python 3.12](https://github.com/Gourieff/Assets/raw/main/Insightface/insightface-0.7.3-cp312-cp312-win_amd64.whl), [for Python 3.13](https://github.com/Gourieff/Assets/raw/main/Insightface/insightface-0.7.3-cp313-cp313-win_amd64.whl) - and put into ComfyUI root folder if you use ComfyUI Portable
+3. Update your PIP:<br>
+   `python_embeded\python.exe -m pip install -U pip`
+4. Then install Insightface:
+  <br>(for 3.10) `python_embeded\python.exe -m pip install insightface-0.7.3-cp310-cp310-win_amd64.whl`
+  <br>(for 3.11) `python_embeded\python.exe -m pip install insightface-0.7.3-cp311-cp311-win_amd64.whl`
+  <br>(for 3.12) `python_embeded\python.exe -m pip install insightface-0.7.3-cp312-cp312-win_amd64.whl`
+  <br>(for 3.13) `python_embeded\python.exe -m pip install insightface-0.7.3-cp313-cp313-win_amd64.whl` 
+5. Enjoy!
 
 ### **II. "AttributeError: 'NoneType' object has no attribute 'get'"**
 
