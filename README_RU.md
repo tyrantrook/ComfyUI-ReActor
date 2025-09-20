@@ -20,6 +20,9 @@
     </sup>
   </a>
 
+  <a href="https://t.me/reactor_faceswap" target="_blank"><img src="https://img.shields.io/badge/ReActor-2CA5E0?style=for-the-badge&logo=Telegram&logoColor=white&labelColor=blue"></img></a>
+  <a href="https://t.me/artgourieff" target="_blank"><img src="https://img.shields.io/badge/ArtGourieff-2CA5E0?style=for-the-badge&logo=Telegram&logoColor=white&labelColor=blue"></img></a>
+
   <hr>
   
   [![Commit activity](https://img.shields.io/github/commit-activity/t/Gourieff/ComfyUI-ReActor/main?cacheSeconds=0)](https://github.com/Gourieff/ComfyUI-ReActor/commits/main)
@@ -63,6 +66,12 @@
 
 <center>
 <img src="https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/0.6.2-whatsnew-02.jpg?raw=true" alt="0.6.2-whatsnew-02" width="100%"/>
+</center>
+
+- Добавлен выход FACE_MODEL_NAME для узла "Load Face Model"
+
+<center>
+<img src="https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/0.6.2-whatsnew-03.jpg?raw=true" alt="0.6.2-whatsnew-03" width="50%"/>
 </center>
 
 ### 0.6.1

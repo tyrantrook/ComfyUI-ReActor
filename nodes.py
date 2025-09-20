@@ -583,19 +583,21 @@ class LoadFaceModel:
             }
         }
 
-    RETURN_TYPES = ("FACE_MODEL",)
+    RETURN_TYPES = ("FACE_MODEL","STRING")
+    RETURN_NAMES = ("FACE_MODEL","FACE_MODEL_NAME")
     FUNCTION = "load_model"
     CATEGORY = "🌌 ReActor"
 
     def load_model(self, face_model):
         self.face_model = face_model
+        face_model = face_model.split(".safetensors")[0] if ".safetensors" in face_model else face_model
         self.face_models_path = FACE_MODELS_PATH
         if self.face_model != "none":
             face_model_path = os.path.join(self.face_models_path, self.face_model)
             out = load_face_model(face_model_path)
         else:
             out = None
-        return (out, )
+        return (out,face_model)
 
 
 class ReActorWeight:
