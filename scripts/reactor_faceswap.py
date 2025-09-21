@@ -123,8 +123,8 @@ class FaceSwapScript(scripts.Script):
                         interpolation=self.interpolation,
                     )
                     p.init_images[0] = result
-                    p.bbox[0] = bbox
-                    p.swapped_indexes[0] = swapped_indexes
+                    p.bbox = bbox
+                    p.swapped_indexes = swapped_indexes
 
                 elif len(p.init_images) > 1:
                     result, bbox, swapped_indexes = swap_face_many(
