@@ -166,7 +166,7 @@ def get_face_gender(
 
     if face_index >= len(faces_sorted):
         logger.info("Requested face index (%s) is out of bounds (max available index is %s)", face_index, len(faces_sorted))
-        return None, 0
+        return None, 0, None
 
     face_selected = faces_sorted[face_index]
 
@@ -175,9 +175,9 @@ def get_face_gender(
     expected_gender = "F" if gender_condition == 1 else "M"
     if gender_condition != 0 and face_selected.sex != expected_gender:
         logger.info(f"{operated} Face {face_index}: WRONG gender ({face_selected.sex})")
-        return face_selected, 1  # <-- есть, но не тот пол
+        return face_selected, 1, face_index  # <-- есть, но не тот пол
 
-    return face_selected, 0
+    return face_selected, 0, face_index
 
 def half_det_size(det_size):
     logger.status("Trying to halve 'det_size' parameter")
