@@ -542,6 +542,7 @@ class ReActorPlusOpt:
         self.input_faces_index = "0"
         self.source_faces_index = "0"
         self.console_log_level = 1
+        self.restore_swapped_only = True
         # self.face_size = 512
         self.face_boost_enabled = False
         self.restore = True
