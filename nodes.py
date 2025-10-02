@@ -1474,6 +1474,7 @@ class MaskHelper:
                 face_segment[...,3] = mask[i]
 
                 result = rgba2rgb_tensor(result)
+                result = result.cpu()  # Перемещаем результат обратно на CPU
 
                 pbar.update(1)
 
