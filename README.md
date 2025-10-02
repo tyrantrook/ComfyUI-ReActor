@@ -2,7 +2,7 @@
 
   <img src="https://github.com/Gourieff/Assets/raw/main/sd-webui-reactor/ReActor_logo_NEW_EN.png?raw=true" alt="logo" width="180px"/>
 
-  ![Version](https://img.shields.io/badge/node_version-0.6.2_alpha3-lightgreen?style=for-the-badge&labelColor=darkgreen)
+  ![Version](https://img.shields.io/badge/node_version-0.6.2_alpha4-lightgreen?style=for-the-badge&labelColor=darkgreen)
 
   <!--<sup>
   <font color=brightred>
@@ -54,7 +54,7 @@
 
 ## What's new in the latest update
 
-### 0.6.2 <sub><sup>ALPHA2, ALPHA3</sup></sub>
+### 0.6.2 <sub><sup>ALPHA2, ALPHA3, ALPHA4</sup></sub>
 
 - Small but important fixes
 
