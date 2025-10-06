@@ -2,7 +2,7 @@
 
   <img src="https://github.com/Gourieff/Assets/raw/main/sd-webui-reactor/ReActor_logo_NEW_RU.png?raw=true" alt="logo" width="180px"/>
 
-  ![Version](https://img.shields.io/badge/версия_нода-0.6.2_alpha4-lightgreen?style=for-the-badge&labelColor=darkgreen)
+  ![Version](https://img.shields.io/badge/версия_нода-0.6.2_beta1-green?style=for-the-badge&labelColor=darkgreen)
   
   <!--<sup>
   <font color=brightred>
@@ -53,6 +53,10 @@
 <a name="latestupdate">
 
 ## Что нового в последнем обновлении
+
+### 0.6.2 <sub><sup>BETA1</sup></sub>
+
+- Добавлена поддержка моделей HyperSwap от команды FaceFusion Labs (спасибо @Buumcode за вариант реализации)<br>Модели можно скачать [отсюда](https://huggingface.co/facefusion/models-3.3.0/tree/main)<br>(hyperswap_1a_256.onnx, hyperswap_1b_256.onnx, hyperswap_1a_256.onnx)<br>и положить в папку `ComfyUI/models/hyperswap`
 
 ### 0.6.2 <sub><sup>ALPHA2, ALPHA3, ALPHA4</sup></sub>
 
@@ -261,6 +265,16 @@ Basic workflow [💾](https://github.com/Gourieff/Assets/blob/main/comfyui-react
 5. Запустите ComfyUI и найдите ReActor Node внутри меню `ReActor` или через поиск
 
 </details>
+
+## Модели
+
+ - buffalo_l: скачиваются при первом запуске в `ComfyUI\models\insightface\models\buffalo_l`, для ручного скачивания доступны [здесь](https://huggingface.co/datasets/Gourieff/ReActor/tree/main/models)
+ - inswapper_128: скачивается при установке в `ComfyUI\models\insightface`, для ручного скачивания доступны [здесь](https://huggingface.co/datasets/Gourieff/ReActor/tree/main/models)
+ - reswapper_128/256: https://huggingface.co/datasets/Gourieff/ReActor/tree/main/models скачать в `ComfyUI\models\reswapper`
+ - hyperswap_256: https://huggingface.co/facefusion/models-3.3.0/tree/main (hyperswap_1a_256.onnx, hyperswap_1b_256.onnx, hyperswap_1a_256.onnx) скачать в `ComfyUI\models\hyperswap`
+ - Face restoration models: https://huggingface.co/datasets/Gourieff/ReActor/tree/main/models/facerestore_models скачать любые предпочитаемые в `ComfyUI\models\facerestore_models`
+ - Ultralytics model: https://huggingface.co/datasets/Gourieff/ReActor/blob/main/models/detection/bbox/face_yolov8m.pt скачать в `ComfyUI\models\ultralytics\bbox`
+ - SAM models: https://huggingface.co/datasets/Gourieff/ReActor/tree/main/models/sams скачать в `ComfyUI\models\sams`
 
 <a name="usage">
 
