@@ -306,7 +306,7 @@ def get_face_gender(
     if len(filtered_faces) == 0:
         if gender_condition != 0:
             logger.status(f"No faces found for -{gender}-")
-        return None, 0  # treat as "wrong gender" to skip
+        return None, 0, None  # treat as "wrong gender" to skip
 
     faces_sorted = sort_by_order(filtered_faces, order)
 
