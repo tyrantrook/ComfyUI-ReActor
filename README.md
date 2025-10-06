@@ -2,7 +2,7 @@
 
   <img src="https://github.com/Gourieff/Assets/raw/main/sd-webui-reactor/ReActor_logo_NEW_EN.png?raw=true" alt="logo" width="180px"/>
 
-  ![Version](https://img.shields.io/badge/node_version-0.6.2_alpha4-lightgreen?style=for-the-badge&labelColor=darkgreen)
+  ![Version](https://img.shields.io/badge/node_version-0.6.2_beta1-green?style=for-the-badge&labelColor=darkgreen)
 
   <!--<sup>
   <font color=brightred>
@@ -53,6 +53,10 @@
 <a name="latestupdate">
 
 ## What's new in the latest update
+
+### 0.6.2 <sub><sup>BETA1</sup></sub>
+
+- Added support of HyperSwap models by FaceFusion Labs (thanks @Buumcode for contribution)<br>You can download them [here](https://huggingface.co/facefusion/models-3.3.0/tree/main)<br>(hyperswap_1a_256.onnx, hyperswap_1b_256.onnx, hyperswap_1a_256.onnx)<br>and put them into the `ComfyUI\models\hyperswap` directory
 
 ### 0.6.2 <sub><sup>ALPHA2, ALPHA3, ALPHA4</sup></sub>
 
@@ -259,6 +263,16 @@ Thanks to everyone who finds bugs, suggests new features and supports this proje
 5. Run ComfyUI and find there ReActor Nodes inside the menu `ReActor` or by using a search
 
 </details>
+
+## Models
+
+ - buffalo_l: downloaded on first launch into `ComfyUI\models\insightface\models\buffalo_l`, or you can download manually from [here](https://huggingface.co/datasets/Gourieff/ReActor/tree/main/models)
+ - inswapper_128: downloaded during installation into `ComfyUI\models\insightface`, or you can download manually from [here](https://huggingface.co/datasets/Gourieff/ReActor/tree/main/models)
+ - reswapper_128/256: https://huggingface.co/datasets/Gourieff/ReActor/tree/main/models put them into `ComfyUI\models\reswapper`
+ - hyperswap_256: https://huggingface.co/facefusion/models-3.3.0/tree/main (hyperswap_1a_256.onnx, hyperswap_1b_256.onnx, hyperswap_1a_256.onnx) put them into `ComfyUI\models\hyperswap`
+ - Face restoration models: https://huggingface.co/datasets/Gourieff/ReActor/tree/main/models/facerestore_models put any you like into `ComfyUI\models\facerestore_models`
+ - Ultralytics model: https://huggingface.co/datasets/Gourieff/ReActor/blob/main/models/detection/bbox/face_yolov8m.pt put into `ComfyUI\models\ultralytics\bbox`
+ - SAM models: https://huggingface.co/datasets/Gourieff/ReActor/tree/main/models/sams put into `ComfyUI\models\sams`
 
 ## Usage
 

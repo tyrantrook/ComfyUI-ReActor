@@ -26,7 +26,8 @@ import comfy.model_management as model_management
 def get_models():
     swappers = [
         "insightface",
-        "reswapper"
+        "reswapper",
+        "hyperswap"
     ]
     models_list = []
     for folder in swappers:
