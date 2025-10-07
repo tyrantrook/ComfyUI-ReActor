@@ -57,6 +57,11 @@
 ### 0.6.2 <sub><sup>BETA1</sup></sub>
 
 - Добавлена поддержка моделей HyperSwap от команды FaceFusion Labs (спасибо @Buumcode за вариант реализации)<br>Модели можно скачать [отсюда](https://huggingface.co/facefusion/models-3.3.0/tree/main)<br>(hyperswap_1a_256.onnx, hyperswap_1b_256.onnx, hyperswap_1a_256.onnx)<br>и положить в папку `ComfyUI/models/hyperswap`
+
+<center>
+<img src="https://github.com/Gourieff/Assets/blob/main/comfyui-reactor-node/0.6.2-whatsnew-04-3.jpg?raw=true" alt="0.6.2-whatsnew-04-3" width="100%"/>
+</center>
+
 - Исправления и улучшения
 
 ### 0.6.2 <sub><sup>ALPHA2, ALPHA3, ALPHA4</sup></sub>
