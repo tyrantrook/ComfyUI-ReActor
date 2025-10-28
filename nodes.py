@@ -137,7 +137,7 @@ class reactor:
             "required": {
                 "enabled": ("BOOLEAN", {"default": True, "label_off": "OFF", "label_on": "ON"}),
                 "input_image": ("IMAGE",),
-                "swap_model": (list(model_names().keys()),),
+                "swap_model": (["inswapper_128", "inswapper_128_fix"],),
                 "facedetection": (["retinaface_resnet50", "retinaface_mobile0.25", "YOLOv5l", "YOLOv5n"],),
                 "face_restore_model": (get_model_names(get_restorers),),
                 "face_restore_visibility": ("FLOAT", {"default": 1, "min": 0.1, "max": 1, "step": 0.05}),
@@ -515,7 +515,7 @@ class ReActorPlusOpt:
             "required": {
                 "enabled": ("BOOLEAN", {"default": True, "label_off": "OFF", "label_on": "ON"}),
                 "input_image": ("IMAGE",),
-                "swap_model": (list(model_names().keys()),),
+                "swap_model": (["inswapper_128", "inswapper_128_fix"],),
                 "facedetection": (["retinaface_resnet50", "retinaface_mobile0.25", "YOLOv5l", "YOLOv5n"],),
                 "face_restore_model": (get_model_names(get_restorers),),
                 "face_restore_visibility": ("FLOAT", {"default": 1, "min": 0.1, "max": 1, "step": 0.05}),
